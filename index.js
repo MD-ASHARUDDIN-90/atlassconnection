@@ -4,11 +4,8 @@ require("dotenv").config();
 
 const app = express();
 app.use(express.json());
-console.log("url", process.env.MONGODB_URI);
 
-mongoose.connect(
-  "mongodb+srv://asharansari90:eOgUTMs6QNgwJHbN@cluster0.gdnrah8.mongodb.net/?retryWrites=true&w=majority"
-);
+mongoose.connect(process.env.MONGODB_URL);
 
 const User = require("./model/userModel");
 
@@ -16,7 +13,7 @@ app.get("/users", async (req, res) => {
   const userData = await User.find({});
   res.json(userData);
 });
-app.delete("/users", async (req, res) => {
+app.delete("/delete", async (req, res) => {
   console.log(req.body);
   const name = req.body.name;
 
@@ -47,6 +44,48 @@ app.post("/insert", (req, res) => {
   console.log("userData", userData);
   User.create(userData);
   res.send(200);
+});
+app.put("/update", async (req, res) => {
+  console.log(req.body);
+  const name = req.body.name;
+  const email = req.body.email;
+  const userData = {
+    name,
+    email,
+  };
+  console.log(name, email);
+
+  try {
+    const findUser = await User.findOneAndUpdate({ name }, userData, {
+      new: true,
+    });
+    console.log("findUser", findUser);
+    res.json(findUser);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Update failed", error: err });
+  }
+});
+app.put("/update/:name", async (req, res) => {
+  console.log(req.params);
+  const name = req.params.name;
+  const email = req.body.email;
+  const userData = {
+    name,
+    email,
+  };
+  console.log(name, email);
+
+  try {
+    const findUser = await User.findOneAndUpdate({ name }, userData, {
+      new: true,
+    });
+    console.log("findUser", findUser);
+    res.json(findUser);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Update failed", error: err });
+  }
 });
 
 app.listen(8080, () => {
